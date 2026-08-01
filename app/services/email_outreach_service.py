@@ -13,7 +13,12 @@ class EmailOutreachService:
 
     def draft(self, company: dict[str, Any], profile: dict[str, Any], role_hint: str | None = None) -> dict[str, str]:
         prompt = self.prompt_loader.load("email_outreach.txt")
-        payload = f"{prompt}\nCompany:\n{company}\nProfile:\n{profile}\nRoleHint:\n{role_hint or 'general'}"
+        profile_summary = profile.get("headline") or profile.get("summary") or "interested in this opportunity"
+        profile_skills = ", ".join(profile.get("skills", [])[:5]) if profile.get("skills") else "relevant experience"
+        payload = (
+            f"{prompt}\nCompany:\n{company}\nProfileSummary:\n{profile_summary}\n"
+            f"ProfileSkills:\n{profile_skills}\nRoleHint:\n{role_hint or 'general'}"
+        )
         response = self.llm.polish(payload)
         subject = f"Re: {role_hint or 'opportunity'} at {company.get('name', 'your company')}"
         body = response[:1200]

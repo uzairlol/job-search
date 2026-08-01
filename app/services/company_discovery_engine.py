@@ -8,6 +8,55 @@ from app.services.ollama_polisher import OllamaPolisher
 from app.services.prompt_loader import PromptLoader
 
 
+REAL_COMPANY_SEEDS = [
+    {
+        "name": "OpenAI",
+        "website": "https://openai.com",
+        "industry": "AI",
+        "country": "Remote",
+        "remote_ok": True,
+        "tags": ["ai", "remote", "research"],
+        "score": 98.0,
+    },
+    {
+        "name": "Anthropic",
+        "website": "https://www.anthropic.com",
+        "industry": "AI",
+        "country": "Remote",
+        "remote_ok": True,
+        "tags": ["ai", "remote", "ml"],
+        "score": 96.0,
+    },
+    {
+        "name": "Databricks",
+        "website": "https://www.databricks.com",
+        "industry": "Data",
+        "country": "Remote",
+        "remote_ok": True,
+        "tags": ["data", "remote", "engineering"],
+        "score": 94.0,
+    },
+    {
+        "name": "GitLab",
+        "website": "https://about.gitlab.com",
+        "industry": "Developer Tools",
+        "country": "Remote",
+        "remote_ok": True,
+        "tags": ["devtools", "remote", "platform"],
+        "score": 92.0,
+    },
+    {
+        "name": "Notion",
+        "website": "https://www.notion.so",
+        "industry": "Productivity",
+        "country": "Remote",
+        "remote_ok": True,
+        "tags": ["product", "remote", "ai"],
+        "score": 90.0,
+    },
+]
+
+
 @dataclass(slots=True)
 class CompanyTarget:
     name: str
@@ -28,48 +77,20 @@ class CompanyDiscoveryEngine:
 
     def discover(self, focus_terms: str = "remote ai ml research") -> list[CompanyTarget]:
         prompt = self.prompt_loader.load("company_discovery.txt")
-        seed = [
-            CompanyTarget(
-                name="Northstar Labs",
-                website="https://northstar.example",
-                industry="AI",
-                country="Remote",
-                remote_ok=True,
-                score=96.0,
-                source="seed",
-                tags=["ai", "remote", "ml"],
-            ),
-            CompanyTarget(
-                name="Open Research Collective",
-                website="https://openresearch.example",
-                industry="Research",
-                country="Remote",
-                remote_ok=True,
-                score=92.0,
-                source="seed",
-                tags=["research", "remote", "ml"],
-            ),
-            CompanyTarget(
-                name="Helio Robotics",
-                website="https://heliorobotics.example",
-                industry="Robotics",
-                country="Remote",
-                remote_ok=True,
-                score=88.0,
-                source="seed",
-                tags=["robotics", "remote", "engineering"],
-            ),
-            CompanyTarget(
-                name="Atlas Data Works",
-                website="https://atlasdata.example",
-                industry="Data",
-                country="US",
-                remote_ok=False,
-                score=74.0,
-                source="seed",
-                tags=["data", "analytics"],
-            ),
-        ]
+        seed = []
+        for payload in REAL_COMPANY_SEEDS:
+            seed.append(
+                CompanyTarget(
+                    name=payload["name"],
+                    website=payload["website"],
+                    industry=payload["industry"],
+                    country=payload["country"],
+                    remote_ok=payload["remote_ok"],
+                    score=payload["score"],
+                    source="seed",
+                    tags=payload["tags"],
+                )
+            )
 
         scored = []
         for company in seed:

@@ -13,10 +13,22 @@ class ResumeTailoringService:
 
     def tailor(self, profile: dict[str, Any], company: dict[str, Any], role_hint: str | None = None) -> dict[str, Any]:
         prompt = self.prompt_loader.load("resume_tailoring.txt")
-        payload = f"{prompt}\nProfile:\n{profile}\nCompany:\n{company}\nRoleHint:\n{role_hint or 'general'}"
+        profile_skills = profile.get("skills", []) or []
+        company_name = company.get("name", "the company")
+        company_industry = company.get("industry") or "the relevant field"
+        company_tags = company.get("tags", []) or []
+        suggested_skills = list(profile_skills)
+        for tag in company_tags:
+            if tag not in suggested_skills:
+                suggested_skills.append(tag.title())
+        suggested_skills = suggested_skills[:8]
+        payload = (
+            f"{prompt}\nProfile:\n{profile}\nCompany:\n{company}\n"
+            f"RoleHint:\n{role_hint or 'general'}\nFocus:\n{company_name} in {company_industry}"
+        )
         feedback = self.llm.polish(payload)
         return {
             "summary": feedback[:400],
-            "skills": ["Python", "Machine Learning", "Research", "FastAPI"],
+            "skills": suggested_skills,
             "notes": feedback[:800],
         }
