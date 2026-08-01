@@ -38,21 +38,33 @@ class CycleRunner:
         run_dir = self.artifact_store.make_run_dir()
         run_dir.mkdir(parents=True, exist_ok=True)
 
-        resume_path = self.resume_builder.write(
-            profile={
-                "name": profile.name,
-                "email": profile.email,
-                "phone": profile.phone,
-                "location": profile.location,
-                "summary": profile.summary,
-                "skills": profile.skills,
-                "experience": profile.experience,
-                "projects": profile.projects,
-            },
-            target_role="Remote AI/ML opportunity",
-            output_path=run_dir / "resume.tex",
-        )
-        pdf_path = self._compile_latex(resume_path)
+        per_company_artifacts: list[dict[str, Any]] = []
+        for company in companies:
+            company_dir = run_dir / self._slugify(company.name)
+            company_dir.mkdir(parents=True, exist_ok=True)
+            resume_path = self.resume_builder.write(
+                profile={
+                    "name": profile.name,
+                    "email": profile.email,
+                    "phone": profile.phone,
+                    "location": profile.location,
+                    "summary": profile.summary,
+                    "skills": profile.skills,
+                    "experience": profile.experience,
+                    "projects": profile.projects,
+                },
+                target_role="Remote AI/ML opportunity",
+                output_path=company_dir / "resume.tex",
+            )
+            pdf_path = self._compile_latex(resume_path)
+            per_company_artifacts.append({
+                "company": company.name,
+                "resume_path": str(resume_path),
+                "pdf_path": str(pdf_path) if pdf_path else None,
+            })
+
+        manifest_path = run_dir / "artifacts_manifest.json"
+        manifest_path.write_text(str(per_company_artifacts), encoding="utf-8")
 
         session = self.database_guard.safe_session()
         if session is not None:
@@ -91,10 +103,13 @@ class CycleRunner:
             "profile": profile.name,
             "focus_terms": focus_terms,
             "companies": [company.name for company in companies],
-            "resume_path": str(resume_path),
-            "pdf_path": str(pdf_path) if pdf_path else None,
             "artifacts_dir": str(run_dir),
+            "company_artifacts": per_company_artifacts,
+            "manifest_path": str(manifest_path),
         }
+
+    def _slugify(self, value: str) -> str:
+        return "".join(ch.lower() if ch.isalnum() else "_" for ch in value).strip("_")
 
     def _compile_latex(self, tex_path: Path) -> Path | None:
         tex_path = tex_path.resolve()

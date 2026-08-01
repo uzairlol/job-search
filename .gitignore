@@ -1,0 +1,17 @@
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.pytype/
+*.log
+*.aux
+*.out
+*.pdf
+*.db
+*.sqlite3
+storage/artifacts/
+storage/*.db
+artifacts/
+job_search.egg-info/
+.env
