@@ -1,21 +1,29 @@
 # job-search
 
-A modular, extensible autonomous job acquisition platform.
+A modular, local-first autonomous job acquisition platform focused on remote opportunities and interview generation.
 
-## Phase 1
+## What this phase includes
+- rule-based company discovery for globally remote-friendly targets
+- profile loading from a local user profile directory
+- ATS-oriented LaTeX resume generation
+- PDF compilation through pdflatex
+- tailored outreach email drafting
+- a terminal-driven workflow entrypoint
 
-This first phase establishes:
-- a modular Python application layout
-- typed domain models
-- a health endpoint
-- a sample company discovery service
-- initial tests
+## Quick start
 
-## Development
+1. Put your profile context into a folder named user_profile.
+2. Run:
 
-```bash
-python -m venv .venv
-.venv\Scripts\activate
-pip install -e .
-uvicorn app.main:app --reload
+```powershell
+python -m app.cli --role "Machine Learning Engineer" --limit 3
 ```
+
+3. The workflow will:
+- discover candidate companies
+- write artifacts/resume.tex
+- compile artifacts/resume.pdf with pdflatex
+- print drafted outreach emails in the terminal
+
+## Notes
+- This is intentionally local-first and modular so it can later grow into an automated outreach system with email sending, recruiter tracking, and richer discovery providers.
