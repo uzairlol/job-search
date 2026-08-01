@@ -1,0 +1,2 @@
+[console_scripts]
+job-search = app.main:app
