@@ -61,6 +61,24 @@ def test_email_builder_creates_personalized_outreach() -> None:
     assert "Machine Learning Engineer" in email.body
 
 
+def test_resume_builder_escapes_latex_special_chars() -> None:
+    profile = {
+        "name": "Ada Lovelace",
+        "email": "ada@example.com",
+        "phone": "+1-555-0100",
+        "location": "Remote",
+        "summary": "Applied ML engineer #1 & research",
+        "skills": ["Python", "C++"],
+        "experience": [],
+        "projects": [],
+    }
+    builder = ResumeBuilder()
+    latex = builder.build(profile=profile, target_role="Machine Learning Engineer")
+
+    assert "\\#" in latex
+    assert "\\&" in latex
+
+
 def test_ollama_polisher_falls_back_to_original_text(monkeypatch) -> None:
     def fake_run(*_args, **_kwargs) -> object:
         raise FileNotFoundError

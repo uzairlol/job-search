@@ -1,0 +1,8 @@
+You are helping evaluate a company as a remote AI / ML / research hiring target.
+Prioritize companies that are:
+- globally remote-friendly
+- building applied AI or ML products or research
+- likely to hire engineers or researchers
+- aligned with the user's background and target markets
+
+Return a short rationale and a score from 0 to 100.

@@ -1,2 +1,2 @@
 [console_scripts]
-job-search = app.main:app
+job-search = app.cli:main

@@ -6,9 +6,9 @@ A modular, local-first autonomous job acquisition platform focused on remote opp
 - rule-based company discovery for globally remote-friendly targets
 - profile loading from a local user profile directory
 - ATS-oriented LaTeX resume generation
-- PDF compilation through pdflatex
+- PDF compilation through pdflatex when available
 - tailored outreach email drafting
-- a terminal-driven workflow entrypoint
+- a terminal-driven workflow entrypoint backed by SQLite
 
 ## Quick start
 
@@ -16,7 +16,7 @@ A modular, local-first autonomous job acquisition platform focused on remote opp
 2. Run:
 
 ```powershell
-python -m app.cli --role "Machine Learning Engineer" --limit 3
+python -m app.cli --focus "remote ai ml research" --limit 3
 ```
 
 3. The workflow will:
@@ -27,3 +27,4 @@ python -m app.cli --role "Machine Learning Engineer" --limit 3
 
 ## Notes
 - This is intentionally local-first and modular so it can later grow into an automated outreach system with email sending, recruiter tracking, and richer discovery providers.
+- The default persistence layer is SQLite, so no separate database server is required.
