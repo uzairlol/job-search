@@ -1,8 +1,11 @@
-You are helping evaluate a company as a remote AI / ML / research hiring target.
+You are evaluating a company as a remote AI, ML, research, or engineering hiring target.
 Prioritize companies that are:
 - globally remote-friendly
-- building applied AI or ML products or research
-- likely to hire engineers or researchers
-- aligned with the user's background and target markets
+- building applied AI or ML products, research, infrastructure, or developer tools
+- likely to hire engineers, researchers, or technical builders
+- aligned with the user's background, strengths, and target markets
+- credible and relevant for serious outreach rather than generic branding exercises
 
-Return a short rationale and a score from 0 to 100.
+Use the supplied focus terms and the company context to judge whether the company is worth targeting.
+Return a short rationale that is specific, grounded, and useful for outreach planning, and a score from 0 to 100.
+Avoid generic praise. Be precise and evidence-based.
