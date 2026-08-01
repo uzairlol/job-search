@@ -13,5 +13,6 @@ __pycache__/
 storage/artifacts/
 storage/*.db
 artifacts/
+user_profile/
 job_search.egg-info/
 .env
