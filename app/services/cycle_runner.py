@@ -13,6 +13,7 @@ from app.services.database_guard import DatabaseGuard
 from app.services.email_outreach_service import EmailOutreachService
 from app.services.profile_ingestion import ProfileIngestionService
 from app.services.profile_loader import ProfileLoader
+from app.services.review_service import ReviewService
 from app.services.resume_builder import ResumeBuilder
 from app.services.resume_tailoring_service import ResumeTailoringService
 
@@ -25,6 +26,7 @@ class CycleRunner:
         self.discovery_engine = CompanyDiscoveryEngine()
         self.resume_tailoring = ResumeTailoringService()
         self.email_outreach = EmailOutreachService()
+        self.review_service = ReviewService()
         self.resume_builder = ResumeBuilder()
         self.profile_ingestion = ProfileIngestionService(profile_dir=self.profile_dir)
         self.database_guard = DatabaseGuard()
@@ -42,17 +44,29 @@ class CycleRunner:
         for company in companies:
             company_dir = run_dir / self._slugify(company.name)
             company_dir.mkdir(parents=True, exist_ok=True)
-            resume_path = self.resume_builder.write(
-                profile={
-                    "name": profile.name,
-                    "email": profile.email,
-                    "phone": profile.phone,
-                    "location": profile.location,
-                    "summary": profile.summary,
-                    "skills": profile.skills,
-                    "experience": profile.experience,
-                    "projects": profile.projects,
+            tailored_resume_profile = {
+                "name": profile.name,
+                "email": profile.email,
+                "phone": profile.phone,
+                "location": profile.location,
+                "summary": profile.summary,
+                "skills": profile.skills,
+                "experience": profile.experience,
+                "projects": profile.projects,
+            }
+            tailoring = self.resume_tailoring.tailor(
+                profile=tailored_resume_profile,
+                company={
+                    "name": company.name,
+                    "industry": company.industry,
+                    "tags": company.tags,
                 },
+                role_hint="Remote AI/ML opportunity",
+            )
+            tailored_resume_profile["summary"] = tailoring["summary"]
+            tailored_resume_profile["skills"] = tailoring["skills"]
+            resume_path = self.resume_builder.write(
+                profile=tailored_resume_profile,
                 target_role="Remote AI/ML opportunity",
                 output_path=company_dir / "resume.tex",
             )
@@ -61,6 +75,7 @@ class CycleRunner:
                 "company": company.name,
                 "resume_path": str(resume_path),
                 "pdf_path": str(pdf_path) if pdf_path else None,
+                "tailoring_notes": tailoring["notes"],
             })
 
         manifest_path = run_dir / "artifacts_manifest.json"
@@ -92,7 +107,18 @@ class CycleRunner:
                         profile={"name": profile.name, "headline": profile.headline},
                         role_hint="Remote AI/ML opportunity",
                     )
-                    email_repo.save(company.name, draft["subject"], draft["body"])
+                    reviewed_body = self.review_service.review(
+                        draft["body"],
+                        "email",
+                        {"company": company.name, "role": "Remote AI/ML opportunity"},
+                    )
+                    reviewed_subject = self.review_service.review(
+                        draft["subject"],
+                        "subject line",
+                        {"company": company.name},
+                    )
+                    final_draft = {"subject": reviewed_subject, "body": reviewed_body}
+                    email_repo.save(company.name, final_draft["subject"], final_draft["body"])
 
                 cycle_repo = CycleRunRepository(session)
                 cycle_repo.save(profile.name, focus_terms, str(run_dir))
